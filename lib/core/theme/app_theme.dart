@@ -18,5 +18,5 @@ class AppTheme {
 }
 
 class AppFormat {
-  static String rupiah(num value) => 'Rp${value.toStringAsFixed(0).replaceAllMapped(RegExp(r'(?<=\\d)(?=(\\d{3})+$)'), (_) => '.')}';
+  static String rupiah(num value) => 'Rp${value.toStringAsFixed(0).replaceAllMapped(RegExp(r'(?<=\d)(?=(\d{3})+$)'), (_) => '.')}';
 }

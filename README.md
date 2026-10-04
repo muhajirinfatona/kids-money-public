@@ -52,4 +52,12 @@ flutter build apk --release \
 
 Project Supabase baru berisi tabel `children`, `wallets`, `transactions`, `savings_goals`, `tasks`, dan `earning_projects` dengan Row Level Security aktif. Repository data berada di `lib/data/repositories/`.
 
-Sebelum dipakai publik, aktifkan Auth email/password atau magic link di Supabase dan buat policy RLS sesuai kebutuhan. Jangan menggunakan policy `using (true)` untuk data saldo/transaksi.
+Jalankan `supabase/schema.sql` di SQL Editor Supabase untuk membuat tabel, trigger wallet, dan policy RLS. Aktifkan Auth email/password pada Authentication > Providers. Aplikasi memiliki mode demo lokal jika `SUPABASE_URL` dan `SUPABASE_PUBLISHABLE_KEY` belum diberikan; pada mode terkonfigurasi, login/register orang tua memuat data dari Supabase.
+
+Fitur yang tersedia:
+
+- Login dan register orang tua dengan Supabase Auth.
+- Profil anak: tambah, pilih, dan muat ulang dari Supabase.
+- Saldo tiga wallet (`spend`, `save`, `share`) dan transaksi income/expense.
+- CRUD awal misi serta target tabungan.
+- Mode anak untuk melihat saldo dan misi tanpa akses pengelolaan orang tua.
