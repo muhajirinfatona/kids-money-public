@@ -9,5 +9,16 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   supabase_flutter: ^2.8.0
+dev_dependencies:
+  flutter_launcher_icons: ^0.14.3
 flutter:
   uses-material-design: true
+  assets:
+    - assets/branding/kids_money_logo.png
+    - assets/branding/kids_money_logo.svg
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: assets/branding/kids_money_logo.png
+  min_sdk_android: 21

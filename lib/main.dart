@@ -24,14 +24,17 @@ class LoginPage extends StatefulWidget {
 }
 class _LoginPageState extends State<LoginPage> {
   final email = TextEditingController(), password = TextEditingController(), name = TextEditingController();
-  bool register = false, busy = false;
+  bool register = false, busy = false, showPassword = false;
   Future<void> submit() async {
-    if (email.text.trim().isEmpty || password.text.length < 6 || (register && name.text.trim().isEmpty)) { _message('Lengkapi data. Password minimal 6 karakter.'); return; }
+    if (register && name.text.trim().isEmpty) { _message('Nama orang tua wajib diisi.'); return; }
+    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email.text.trim())) { _message('Masukkan alamat email yang valid.'); return; }
+    if (password.text.length < 6) { _message('Password harus terdiri dari minimal 6 karakter.'); return; }
     setState(() => busy = true);
     try { if (register) await widget.state.signUp(email.text, password.text, name.text); else await widget.state.signIn(email.text, password.text); if (mounted && register) _message('Akun dibuat. Periksa email bila konfirmasi diaktifkan.'); }
-    catch (e) { if (mounted) _message('Gagal: $e'); }
+    catch (e) { if (mounted) _message(friendlyAuthError(e)); }
     if (mounted) setState(() => busy = false);
   }
+  @override void dispose() { email.dispose(); password.dispose(); name.dispose(); super.dispose(); }
   void _message(String text) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -43,7 +46,8 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text('Kids Money', style: TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: AppTheme.green)),
+                  Image.asset('assets/branding/kids_money_logo.png', height: 92, fit: BoxFit.contain),
+                  const SizedBox(height: 8),
                   const SizedBox(height: 6),
                   Text(register ? 'Buat akun orang tua' : 'Kelola uang anak dengan aman', style: const TextStyle(color: AppTheme.muted)),
                   const SizedBox(height: 28),
@@ -51,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
                   if (register) const SizedBox(height: 12),
                   TextField(controller: email, keyboardType: TextInputType.emailAddress, decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email))),
                   const SizedBox(height: 12),
-                  TextField(controller: password, obscureText: true, decoration: const InputDecoration(labelText: 'Password', prefixIcon: Icon(Icons.lock))),
+                  TextField(controller: password, obscureText: !showPassword, decoration: InputDecoration(labelText: 'Password', prefixIcon: const Icon(Icons.lock), suffixIcon: IconButton(tooltip: showPassword ? 'Sembunyikan password' : 'Tampilkan password', onPressed: () => setState(() => showPassword = !showPassword), icon: Icon(showPassword ? Icons.visibility_off : Icons.visibility))),),
                   const SizedBox(height: 20),
                   FilledButton(onPressed: busy ? null : submit, child: Text(busy ? 'Memproses...' : register ? 'Daftar' : 'Masuk')),
                   TextButton(onPressed: busy ? null : () => setState(() => register = !register), child: Text(register ? 'Sudah punya akun? Masuk' : 'Belum punya akun? Daftar')),
@@ -120,3 +124,16 @@ class ChildPage extends StatelessWidget {
 }
 
 Future<List<String>?> _form(BuildContext context, String title, List<String> labels) async { final controllers = labels.map((_) => TextEditingController()).toList(); return showDialog<List<String>>(context: context, builder: (c) => AlertDialog(title: Text(title), content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [for (var i = 0; i < labels.length; i++) Padding(padding: const EdgeInsets.only(bottom: 10), child: TextField(controller: controllers[i], decoration: InputDecoration(labelText: labels[i])))])), actions: [TextButton(onPressed: () => Navigator.pop(c), child: const Text('Batal')), FilledButton(onPressed: () => Navigator.pop(c, controllers.map((x) => x.text.trim()).toList()), child: const Text('Simpan'))])); }
+
+String friendlyAuthError(Object error) {
+  final raw = error.toString().toLowerCase();
+  if (raw.contains('socketexception') || raw.contains('failed host lookup') || raw.contains('network is unreachable') || raw.contains('timeout')) {
+    return 'Tidak dapat terhubung ke server. Periksa koneksi internet, DNS, atau coba lagi beberapa saat.';
+  }
+  if (raw.contains('user already registered') || raw.contains('already registered')) return 'Email tersebut sudah terdaftar. Silakan masuk atau gunakan email lain.';
+  if (raw.contains('invalid login credentials')) return 'Email atau password tidak sesuai.';
+  if (raw.contains('password should be at least')) return 'Password harus terdiri dari minimal 6 karakter.';
+  if (raw.contains('email not confirmed')) return 'Email belum dikonfirmasi. Periksa inbox email Anda.';
+  if (raw.contains('rate limit')) return 'Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.';
+  return 'Pendaftaran belum berhasil. Periksa data Anda lalu coba lagi.';
+}
