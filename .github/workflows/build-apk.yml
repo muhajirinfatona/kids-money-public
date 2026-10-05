@@ -9,6 +9,11 @@ on:
 jobs:
   build-apk:
     runs-on: ubuntu-latest
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
     permissions:
       contents: read
     steps:
@@ -24,6 +29,10 @@ jobs:
       - name: Generate Android project files
         run: flutter create --platforms=android --project-name=kids_money --org=com.kidsmoney .
 
+      - name: Configure Android release signing
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
+        run: bash tooling/configure_android_signing.sh
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -36,8 +45,22 @@ jobs:
             --dart-define=SUPABASE_URL=https://gcgxouridqlydvklhyjt.supabase.co \
             --dart-define=SUPABASE_PUBLISHABLE_KEY=${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
 
+      - name: Build Play Store AAB
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
+        run: |
+          flutter build appbundle --release \
+            --dart-define=SUPABASE_URL=https://gcgxouridqlydvklhyjt.supabase.co \
+            --dart-define=SUPABASE_PUBLISHABLE_KEY=${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: kids-money-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Upload Play Store AAB
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: kids-money-play-store-aab
+          path: build/app/outputs/bundle/release/app-release.aab
