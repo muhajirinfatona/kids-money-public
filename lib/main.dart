@@ -33,7 +33,35 @@ class _LoginPageState extends State<LoginPage> {
     if (mounted) setState(() => busy = false);
   }
   void _message(String text) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
-  @override Widget build(BuildContext context) => Scaffold(body: Center(child: SingleChildScrollView(padding: const EdgeInsets.all(28), child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 440), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [const Text('Kids Money', style: TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: AppTheme.green)), const SizedBox(height: 6), Text(register ? 'Buat akun orang tua' : 'Kelola uang anak dengan aman', style: const TextStyle(color: AppTheme.muted)), const SizedBox(height: 28), if (register) TextField(controller: name, decoration: const InputDecoration(labelText: 'Nama orang tua', prefixIcon: Icon(Icons.person))), if (register) const SizedBox(height: 12), TextField(controller: email, keyboardType: TextInputType.emailAddress, decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email))), const SizedBox(height: 12), TextField(controller: password, obscureText: true, decoration: const InputDecoration(labelText: 'Password', prefixIcon: Icon(Icons.lock))), const SizedBox(height: 20), FilledButton(onPressed: busy ? null : submit, child: Text(busy ? 'Memproses...' : register ? 'Daftar' : 'Masuk')), TextButton(onPressed: busy ? null : () => setState(() => register = !register), child: Text(register ? 'Sudah punya akun? Masuk' : 'Belum punya akun? Daftar')), if (!widget.state.isConfigured) const Padding(padding: EdgeInsets.only(top: 16), child: Text('Mode demo aktif karena Supabase belum dikonfigurasi.', textAlign: TextAlign.center, style: TextStyle(color: AppTheme.muted))) ]))));
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(28),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 440),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text('Kids Money', style: TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: AppTheme.green)),
+                  const SizedBox(height: 6),
+                  Text(register ? 'Buat akun orang tua' : 'Kelola uang anak dengan aman', style: const TextStyle(color: AppTheme.muted)),
+                  const SizedBox(height: 28),
+                  if (register) TextField(controller: name, decoration: const InputDecoration(labelText: 'Nama orang tua', prefixIcon: Icon(Icons.person))),
+                  if (register) const SizedBox(height: 12),
+                  TextField(controller: email, keyboardType: TextInputType.emailAddress, decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email))),
+                  const SizedBox(height: 12),
+                  TextField(controller: password, obscureText: true, decoration: const InputDecoration(labelText: 'Password', prefixIcon: Icon(Icons.lock))),
+                  const SizedBox(height: 20),
+                  FilledButton(onPressed: busy ? null : submit, child: Text(busy ? 'Memproses...' : register ? 'Daftar' : 'Masuk')),
+                  TextButton(onPressed: busy ? null : () => setState(() => register = !register), child: Text(register ? 'Sudah punya akun? Masuk' : 'Belum punya akun? Daftar')),
+                  if (!widget.state.isConfigured) const Padding(padding: EdgeInsets.only(top: 16), child: Text('Mode demo aktif karena Supabase belum dikonfigurasi.', textAlign: TextAlign.center, style: TextStyle(color: AppTheme.muted))),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
 }
 
 class HomePage extends StatelessWidget {
@@ -70,7 +98,24 @@ class _ParentContent extends StatelessWidget {
 
 class ChildPage extends StatelessWidget {
   const ChildPage({required this.state, super.key}); final AppState state;
-  @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: Text('Halo, ${state.selectedChild.name}!'), leading: IconButton(onPressed: state.enterParentMode, icon: const Icon(Icons.lock))), body: ListView(padding: const EdgeInsets.all(16), children: [Card(child: ListTile(leading: Text(state.selectedChild.avatar, style: const TextStyle(fontSize: 40)), title: const Text('Total uangku'), subtitle: Text(AppFormat.rupiah(state.selectedBalance.total), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppTheme.green)))), const SizedBox(height: 12), const Text('Dompetku', style: TextStyle(fontWeight: FontWeight.bold)), _wallet('Jajanan', state.selectedBalance.spend), _wallet('Tabungan', state.selectedBalance.save), _wallet('Berbagi', state.selectedBalance.share), const SizedBox(height: 12), const Text('Misi aktif', style: TextStyle(fontWeight: FontWeight.bold)), ...(state.tasks[state.selectedChildId] ?? const <MoneyTask>[]).map((t) => ListTile(leading: const Icon(Icons.stars, color: Colors.amber), title: Text(t.title), trailing: Text(AppFormat.rupiah(t.reward))))]);
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: Text('Halo, ${state.selectedChild.name}!'), leading: IconButton(onPressed: state.enterParentMode, icon: const Icon(Icons.lock))),
+        body: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Card(child: ListTile(leading: Text(state.selectedChild.avatar, style: const TextStyle(fontSize: 40)), title: const Text('Total uangku'), subtitle: Text(AppFormat.rupiah(state.selectedBalance.total), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppTheme.green)))),
+            const SizedBox(height: 12),
+            const Text('Dompetku', style: TextStyle(fontWeight: FontWeight.bold)),
+            _wallet('Jajanan', state.selectedBalance.spend),
+            _wallet('Tabungan', state.selectedBalance.save),
+            _wallet('Berbagi', state.selectedBalance.share),
+            const SizedBox(height: 12),
+            const Text('Misi aktif', style: TextStyle(fontWeight: FontWeight.bold)),
+            ...(state.tasks[state.selectedChildId] ?? const <MoneyTask>[]).map((t) => ListTile(leading: const Icon(Icons.stars, color: Colors.amber), title: Text(t.title), trailing: Text(AppFormat.rupiah(t.reward)))),
+          ],
+        ),
+      );
   Widget _wallet(String name, int value) => Card(child: ListTile(title: Text(name), trailing: Text(AppFormat.rupiah(value), style: const TextStyle(fontWeight: FontWeight.bold))));
 }
 

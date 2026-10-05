@@ -13,7 +13,7 @@ class AppTheme {
     fontFamily: 'Arial',
     scaffoldBackgroundColor: surface,
     colorScheme: ColorScheme.fromSeed(seedColor: green),
-    cardTheme: CardTheme(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), elevation: 1),
+    cardTheme: CardThemeData(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), elevation: 1),
   );
 }
 
