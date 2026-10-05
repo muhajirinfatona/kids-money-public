@@ -13,7 +13,7 @@ class ChildProfile {
   factory ChildProfile.fromMap(Map<String, dynamic> map) => ChildProfile(
         id: map['id'].toString(),
         name: map['name'] as String? ?? 'Anak',
-        age: map['age_group'] as String? ?? '5-7',
+        age: (map['age_group'] as String? ?? '5_7').replaceAll('_', '-'),
         avatar: map['avatar'] as String? ?? '🙂',
       );
 }
@@ -67,7 +67,7 @@ class MoneyTransaction {
         description: map['description'] as String? ?? 'Transaksi',
         amount: (map['amount'] as num?)?.toInt() ?? 0,
         type: map['type'] == 'expense' ? TransactionType.expense : TransactionType.income,
-        wallet: WalletType.values.firstWhere((w) => w.name == map['wallet'], orElse: () => WalletType.save),
+        wallet: WalletType.values.firstWhere((w) => w.name == (map['wallet_type'] ?? map['wallet']), orElse: () => WalletType.save),
       );
 }
 
@@ -81,7 +81,7 @@ class MoneyTask {
   factory MoneyTask.fromMap(Map<String, dynamic> map) => MoneyTask(
         id: map['id'].toString(),
         title: map['title'] as String? ?? 'Misi baru',
-        reward: (map['reward'] as num?)?.toInt() ?? 0,
-        status: TaskStatus.values.firstWhere((s) => s.name == map['status'], orElse: () => TaskStatus.active),
+        reward: ((map['reward_amount'] ?? map['reward']) as num?)?.toInt() ?? 0,
+        status: TaskStatus.values.firstWhere((s) => s.name == (map['status'] as String?)?.replaceAll('waiting_approval', 'waitingApproval'), orElse: () => TaskStatus.active),
       );
 }

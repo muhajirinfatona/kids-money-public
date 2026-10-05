@@ -66,8 +66,18 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> addTransaction({required String description, required int amount, required WalletType wallet, required TransactionType type}) async {
+    if (amount <= 0) throw ArgumentError('Nominal harus lebih besar dari nol.');
     final current = selectedBalance;
     final delta = type == TransactionType.income ? amount : -amount;
+    final walletBalance = switch (wallet) {
+      WalletType.spend => current.spend,
+      WalletType.save => current.save,
+      WalletType.share => current.share,
+    };
+    if (type == TransactionType.expense && walletBalance < amount) {
+      throw StateError('Saldo ${wallet.name} tidak mencukupi.');
+    }
+    if (data != null && isSignedIn) await data!.addTransaction(childId: selectedChildId, description: description, amount: amount, wallet: wallet, type: type);
     balances[selectedChildId] = switch (wallet) {
       WalletType.spend => current.copyWith(spend: current.spend + delta),
       WalletType.save => current.copyWith(save: current.save + delta),
@@ -75,7 +85,6 @@ class AppState extends ChangeNotifier {
     };
     final transaction = MoneyTransaction(id: DateTime.now().toIso8601String(), description: description, amount: amount, type: type, wallet: wallet);
     transactions[selectedChildId] = [transaction, ...(transactions[selectedChildId] ?? const [])];
-    if (data != null && isSignedIn) await data!.addTransaction(childId: selectedChildId, description: description, amount: amount, wallet: wallet, type: type);
     notifyListeners();
   }
 

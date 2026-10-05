@@ -52,7 +52,7 @@ flutter build apk --release \
 
 Project Supabase baru berisi tabel `children`, `wallets`, `transactions`, `savings_goals`, `tasks`, dan `earning_projects` dengan Row Level Security aktif. Repository data berada di `lib/data/repositories/`.
 
-Jalankan `supabase/schema.sql` di SQL Editor Supabase untuk membuat tabel, trigger wallet, dan policy RLS. Aktifkan Auth email/password pada Authentication > Providers. Aplikasi memiliki mode demo lokal jika `SUPABASE_URL` dan `SUPABASE_PUBLISHABLE_KEY` belum diberikan; pada mode terkonfigurasi, login/register orang tua memuat data dari Supabase.
+Project Supabase Kids Money sudah terhubung dan memiliki migration core schema serta RLS aktif. Migration tambahan untuk transaksi atomik ada di `supabase/20261005_atomic_transaction.sql` dan sudah diterapkan ke project production. Aktifkan Auth email/password pada Authentication > Providers. Aplikasi memiliki mode demo lokal jika `SUPABASE_URL` dan `SUPABASE_PUBLISHABLE_KEY` belum diberikan; pada mode terkonfigurasi, login/register orang tua memuat data dari Supabase.
 
 Fitur yang tersedia:
 
